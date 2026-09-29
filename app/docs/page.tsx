@@ -6,8 +6,10 @@ import { api, callApiEndpoint, store } from '@/lib/api';
 import Tabs from '@/components/Tabs';
 import CodeBlock from '@/components/CodeBlock';
 import CopyButton from '@/components/CopyButton';
+import { useToast } from '@/components/Toast';
 
-const VIP_CATS = ['AI', 'Download', 'Image', 'NSFW', 'Stalker'];
+const VIP_CATS = ['AI', 'Download', 'Image', 'NSFW', 'Stalker', 'Adult'];
+const ALL = '__all';
 
 interface ParamDef { required?: boolean; type?: string; example?: string; desc?: string }
 interface SvcItem {
@@ -16,6 +18,7 @@ interface SvcItem {
   status?: string; vipOnly?: boolean; vip?: boolean;
   params?: Record<string, ParamDef> | { name: string; required?: boolean; example?: string; desc?: string }[];
   example?: string;
+  __cat?: string;
 }
 interface SvcCat { name: string; items: SvcItem[] }
 
@@ -28,10 +31,15 @@ function normPath(p: string) {
   return '/api/' + clean;
 }
 
+function isVip(it: SvcItem, cat: string) {
+  return !!(it.vipOnly || it.vip || VIP_CATS.includes(it.__cat || cat));
+}
+
 function DocsInner() {
   const qp = useSearchParams();
+  const toast = useToast();
   const [cats, setCats] = useState<SvcCat[]>([]);
-  const [cat, setCat] = useState('');
+  const [cat, setCat] = useState(ALL);
   const [sel, setSel] = useState<SvcItem | null>(null);
   const [key, setKey] = useState('');
   const [vals, setVals] = useState<Record<string, string>>({});
@@ -43,15 +51,18 @@ function DocsInner() {
     setKey(store.user?.apiKey || '');
     api.services().then((r) => {
       const raw = (((r.data || {}) as { categories?: { name: string; apis: SvcItem[] }[] }).categories || []);
-      const list: SvcCat[] = raw.map((c) => ({ name: c.name, items: c.apis || [] }));
+      const list: SvcCat[] = raw.map((c) => ({ name: c.name, items: (c.apis || []).map((it) => ({ ...it, __cat: c.name })) }));
       setCats(list);
       const want = qp.get('cat');
-      setCat(want && list.some((c) => c.name === want) ? want : (list[0]?.name || ''));
+      if (want && list.some((c) => c.name === want)) setCat(want);
     }).catch(() => setErr('Failed to load API registry (server may be waking up — retry in 30s).'));
   }, [qp]);
 
-  const items = useMemo(() => cats.find((c) => c.name === cat)?.items || [], [cats, cat]);
-  const catVip = VIP_CATS.includes(cat);
+  const total = useMemo(() => cats.reduce((n, c) => n + c.items.length, 0), [cats]);
+  const items = useMemo(
+    () => (cat === ALL ? cats.flatMap((c) => c.items) : cats.find((c) => c.name === cat)?.items || []),
+    [cats, cat]
+  );
 
   const pick = (it: SvcItem) => {
     setSel(it);
@@ -78,8 +89,13 @@ function DocsInner() {
     try {
       const r = await callApiEndpoint(normPath(epOf(sel)), { ...vals, apikey: key });
       setOut(JSON.stringify(r, null, 2).slice(0, 12000));
+      const st = (r as { status?: number })?.status;
+      if (st === 403) toast('VIP endpoint — upgrade your plan to use it', 'error');
+      else if (st === 429) toast('Monthly quota exhausted — see Plans', 'error');
     } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Request failed');
+      const m = e instanceof Error ? e.message : 'Request failed';
+      setErr(m);
+      toast(m, 'error');
     } finally {
       setBusy(false);
     }
@@ -115,23 +131,31 @@ function DocsInner() {
         </p>
       )}
 
-      <div className="mt-5"><Tabs tabs={cats.map((c) => ({ id: c.name, label: `${c.name} (${c.items.length})` }))} value={cat} onChange={(id) => { setCat(id); setSel(null); setOut(''); }} /></div>
+      <div className="mt-5">
+        <Tabs
+          tabs={[{ id: ALL, label: `All (${total})` }, ...cats.map((c) => ({ id: c.name, label: `${c.name} (${c.items.length})` }))]}
+          value={cat}
+          onChange={(id) => { setCat(id); setSel(null); setOut(''); }}
+        />
+      </div>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-5">
-        <div className="space-y-2 lg:col-span-2">
+        <div className="max-h-[70vh] space-y-2 overflow-y-auto pr-1 lg:col-span-2">
           {items.map((it) => {
-            const active = epOf(sel || { name: '' }) === epOf(it) && !!sel;
+            const active = !!sel && epOf(sel) === epOf(it);
             return (
               <button
-                key={epOf(it)}
+                key={`${it.__cat}:${epOf(it)}`}
                 onClick={() => pick(it)}
                 className={`w-full rounded-xl border p-3 text-left transition ${active ? 'border-indigo-400/60 bg-indigo-500/10' : 'border-white/10 bg-white/[0.02] hover:border-indigo-400/40'}`}
               >
                 <span className="flex items-center gap-2 text-sm font-medium text-white">
                   {it.name}
-                  {(it.vipOnly || it.vip || catVip) && <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-semibold text-amber-300"><Crown size={10} /> VIP</span>}
+                  {isVip(it, cat) && <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-semibold text-amber-300"><Crown size={10} /> VIP</span>}
                 </span>
-                <span className="mt-0.5 block truncate font-mono text-[11px] text-zinc-500">{normPath(epOf(it))}</span>
+                <span className="mt-0.5 block truncate font-mono text-[11px] text-zinc-500">
+                  {cat === ALL && it.__cat ? `[${it.__cat}] ` : ''}{normPath(epOf(it))}
+                </span>
               </button>
             );
           })}

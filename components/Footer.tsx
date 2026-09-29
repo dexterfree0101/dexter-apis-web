@@ -11,7 +11,7 @@ export default function Footer() {
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 md:grid-cols-4">
         <div>
           <p className="text-lg font-bold text-white">DEXTER <span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">APIS</span></p>
-          <p className="mt-2 text-sm text-zinc-400">35+ production APIs — AI, downloaders, LK news, tools, fun and more. Free tier forever.</p>
+          <p className="mt-2 text-sm text-zinc-400">40+ production APIs — AI, movies, downloaders, LK news, tools, fun and more. Free tier forever.</p>
         </div>
         <div>
           <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-zinc-500">Platform</p>

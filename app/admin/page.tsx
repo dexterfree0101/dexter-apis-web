@@ -1,12 +1,28 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
-import { AlertTriangle, Check, ShieldCheck, Ticket, Users, Wallet, X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { AlertTriangle, Check, Plug, ShieldCheck, Ticket, Users, Wallet, X } from 'lucide-react';
 import { api, store } from '@/lib/api';
 import Tabs from '@/components/Tabs';
+import { useToast } from '@/components/Toast';
 
 type J = Record<string, any>;
 
+function Switch({ on, onFlip, label }: { on: boolean; onFlip: () => void; label: string }) {
+  return (
+    <button
+      onClick={onFlip}
+      title={label}
+      className={`relative h-6 w-11 shrink-0 rounded-full transition ${on ? 'bg-gradient-to-r from-indigo-500 to-violet-500' : 'bg-white/10'}`}
+    >
+      <span
+        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${on ? 'left-[22px]' : 'left-0.5'}`}
+      />
+    </button>
+  );
+}
+
 export default function AdminPage() {
+  const toast = useToast();
   const [token, setToken] = useState('');
   const [adminId, setAdminId] = useState('');
   const [password, setPassword] = useState('');
@@ -16,6 +32,8 @@ export default function AdminPage() {
   const [subs, setSubs] = useState<J[]>([]);
   const [users, setUsers] = useState<J[]>([]);
   const [coupons, setCoupons] = useState<J[]>([]);
+  const [apis, setApis] = useState<J[]>([]);
+  const [apiCat, setApiCat] = useState('__all');
   const [filter, setFilter] = useState('');
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState(false);
@@ -30,13 +48,15 @@ export default function AdminPage() {
   const load = useCallback(async (t: string) => {
     setBusy(true);
     try {
-      const [s, b, u, c] = await Promise.all([
+      const [s, b, u, c, a] = await Promise.all([
         api.adminStats(t), api.adminSubs(t), api.adminUsers(t, '?limit=50'), api.adminCoupons(t),
+        api.adminApis(t).catch(() => null),
       ]);
       if (s.success) setStats((s.data || {}) as J);
       if (b.success) setSubs((((b.data || {}) as { subscriptions?: J[] }).subscriptions) || []);
       if (u.success) setUsers((((u.data || {}) as { users?: J[] }).users) || []);
       if (c.success) setCoupons((((c.data || {}) as { coupons?: J[] }).coupons) || []);
+      if (a?.success) setApis((((a.data || {}) as { apis?: J[] }).apis) || []);
     } finally {
       setBusy(false);
     }
@@ -55,25 +75,41 @@ export default function AdminPage() {
   };
 
   const approve = async (id: string) => {
-    setMsg('');
     const r = await api.adminApprove(token, id, { months: Number(months) || 1 });
     setMsg(r.message);
+    toast(r.message, r.success ? 'success' : 'error');
     if (r.success) load(token);
   };
 
   const reject = async (id: string) => {
-    setMsg('');
     const r = await api.adminReject(token, id, rej[id] || '');
     setMsg(r.message);
+    toast(r.message, r.success ? 'success' : 'error');
     if (r.success) load(token);
   };
 
   const mkCoupon = async () => {
-    setMsg('');
     const r = await api.adminCouponCreate(token, { plan: cpPlan, days: Number(cpDays) || 7, maxUses: Number(cpUses) || 1 });
-    setMsg(r.success ? `Created: ${((r.data || {}) as J).code}` : r.message);
+    const m = r.success ? `Created: ${((r.data || {}) as J).code}` : r.message;
+    setMsg(m);
+    toast(m, r.success ? 'success' : 'error');
     if (r.success) load(token);
   };
+
+  const flipApi = async (a: J, patch: { vipOnly?: boolean; enabled?: boolean }) => {
+    setApis((prev) => prev.map((x) => (x.handlerId === a.handlerId ? { ...x, ...patch, overridden: true } : x)));
+    const r = await api.adminApiUpdate(token, a.handlerId, patch);
+    if (!r.success) {
+      toast(r.message, 'error');
+      load(token);
+    }
+  };
+
+  const apiCats = useMemo(() => ['__all', ...Array.from(new Set(apis.map((a) => String(a.category || 'Other'))))], [apis]);
+  const shownApis = useMemo(
+    () => (apiCat === '__all' ? apis : apis.filter((a) => String(a.category) === apiCat)),
+    [apis, apiCat]
+  );
 
   if (!token) {
     return (
@@ -97,10 +133,7 @@ export default function AdminPage() {
     <div className="mx-auto max-w-6xl px-4 py-10">
       <div className="flex items-center justify-between">
         <h1 className="flex items-center gap-2 text-2xl font-bold text-white"><ShieldCheck className="text-indigo-300" /> Admin</h1>
-        <button
-          onClick={() => { store.clearAdmin(); setToken(''); }}
-          className="btn-ghost !px-4 !py-2 text-sm"
-        >
+        <button onClick={() => { store.clearAdmin(); setToken(''); }} className="btn-ghost !px-4 !py-2 text-sm">
           Log out
         </button>
       </div>
@@ -110,6 +143,7 @@ export default function AdminPage() {
           tabs={[
             { id: 'overview', label: 'Overview' },
             { id: 'subs', label: `Subscriptions (${subs.filter((s) => s.status === 'pending').length} pending)` },
+            { id: 'apis', label: `APIs (${apis.length})` },
             { id: 'users', label: `Users (${users.length})` },
             { id: 'coupons', label: 'Coupons' },
           ]}
@@ -174,6 +208,39 @@ export default function AdminPage() {
             </div>
           ))}
           {!subs.length && <p className="text-sm text-zinc-500">No subscription requests yet.</p>}
+        </div>
+      )}
+
+      {tab === 'apis' && (
+        <div className="mt-4 space-y-3">
+          <Tabs tabs={apiCats.map((c) => ({ id: c, label: c === '__all' ? `All (${apis.length})` : `${c} (${apis.filter((a) => String(a.category) === c).length})` }))} value={apiCat} onChange={setApiCat} />
+          <div className="space-y-2">
+            {shownApis.map((a) => (
+              <div key={a.handlerId} className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3 ${a.enabled === false ? 'border-rose-400/20 bg-rose-500/[0.04] opacity-70' : 'border-white/10 bg-white/[0.02]'}`}>
+                <div className="min-w-0">
+                  <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-white">
+                    {a.name}
+                    <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-zinc-300">{a.category}</span>
+                    {a.status === 'down' && <span className="rounded-full bg-rose-500/15 px-2 py-0.5 text-[10px] font-semibold text-rose-300">DOWN</span>}
+                    {a.overridden && <span className="rounded-full bg-indigo-500/15 px-2 py-0.5 text-[10px] font-semibold text-indigo-300">CUSTOM</span>}
+                  </p>
+                  <p className="mt-0.5 truncate font-mono text-[11px] text-zinc-500">{a.endpoint}</p>
+                </div>
+                <div className="flex items-center gap-5 text-xs text-zinc-400">
+                  <span className="flex items-center gap-2">
+                    <Plug size={14} className={a.enabled === false ? 'text-rose-300' : 'text-emerald-300'} />
+                    {a.enabled === false ? 'Off' : 'On'}
+                    <Switch on={a.enabled !== false} onFlip={() => flipApi(a, { enabled: !(a.enabled !== false) })} label="Enable / disable endpoint" />
+                  </span>
+                  <span className="flex items-center gap-2">
+                    VIP
+                    <Switch on={!!a.vipOnly} onFlip={() => flipApi(a, { vipOnly: !a.vipOnly })} label="VIP only" />
+                  </span>
+                </div>
+              </div>
+            ))}
+            {!shownApis.length && <p className="text-sm text-zinc-500">No APIs found. Deploy backend v3.3+ for this tab.</p>}
+          </div>
         </div>
       )}
 

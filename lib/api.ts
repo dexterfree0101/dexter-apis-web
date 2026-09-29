@@ -67,6 +67,10 @@ export const api = {
     req(`/api/admin/users/${id}`, { method: 'PUT', body: JSON.stringify(b), headers: { Authorization: `Bearer ${t}` } }),
   adminCouponCreate: (t: string, b: { plan: string; days: number; maxUses: number }) => post(`/api/admin/coupons/create`, b, t),
   adminCoupons: (t: string) => get(`/api/admin/coupons`, t),
+  firebase: (b: { idToken: string; referralCode?: string }) => post(`/api/auth/firebase`, b),
+  adminApis: (t: string) => get(`/api/admin/apis`, t),
+  adminApiUpdate: (t: string, id: string, b: { vipOnly?: boolean; enabled?: boolean }) =>
+    req(`/api/admin/apis/${id}`, { method: 'PUT', body: JSON.stringify(b), headers: { Authorization: `Bearer ${t}` } }),
 };
 
 export async function callApiEndpoint(endpoint: string, params: Record<string, string>): Promise<unknown> {

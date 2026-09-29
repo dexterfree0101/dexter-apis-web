@@ -96,3 +96,121 @@ body {
   border-color: rgba(129, 140, 248, 0.5);
   background: rgba(99, 102, 241, 0.08);
 }
+
+/* ---------- animations ---------- */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes gradientPan {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(32px) scale(0.96); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes menuIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spinRing {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes orbDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, -30px) scale(1.15); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-vis {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast-in {
+  animation: toastIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mobile-menu {
+  animation: menuIn 0.22s ease-out;
+}
+
+.animate-gradient {
+  background-size: 200% auto;
+  animation: gradientPan 4s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: floatY 5s ease-in-out infinite;
+}
+
+/* ---------- 3D logo ---------- */
+.logo3d {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 300px;
+  transition: transform 0.3s ease;
+}
+.group:hover .logo3d {
+  transform: scale(1.08) rotateY(-8deg);
+}
+.logo3d-ring {
+  position: absolute;
+  inset: 0;
+  animation: spinRing 9s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(129, 140, 248, 0.55));
+}
+.logo3d-core {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 68%;
+  height: 68%;
+  border-radius: 22%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6 60%, #6d28d9);
+  box-shadow: 0 0 22px rgba(99, 102, 241, 0.55), inset 0 1px 2px rgba(255, 255, 255, 0.35);
+  transform: rotateX(8deg);
+}
+
+/* ---------- background orbs ---------- */
+.orb {
+  position: fixed;
+  border-radius: 9999px;
+  filter: blur(110px);
+  pointer-events: none;
+  z-index: 0;
+}
+.orb-a {
+  width: 480px;
+  height: 480px;
+  top: -160px;
+  left: -140px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.22), transparent 70%);
+  animation: orbDrift 14s ease-in-out infinite;
+}
+.orb-b {
+  width: 520px;
+  height: 520px;
+  bottom: -200px;
+  right: -160px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.18), transparent 70%);
+  animation: orbDrift 18s ease-in-out infinite reverse;
+}
