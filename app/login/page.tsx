@@ -1,10 +1,10 @@
 'use client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { AlertTriangle, LogIn } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { AlertTriangle, Loader2, ShieldCheck } from 'lucide-react';
 import { api, store } from '@/lib/api';
-import { signInWithGoogle } from '@/lib/firebase';
+import { consumeGoogleRedirect, friendlyAuthError, signInWithGoogleSmart } from '@/lib/firebase';
 import { useToast } from '@/components/Toast';
 
 function GoogleIcon() {
@@ -21,15 +21,16 @@ function GoogleIcon() {
 export default function LoginPage() {
   const router = useRouter();
   const toast = useToast();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState('');
+  const done = useRef(false);
 
   const finish = (data: unknown) => {
     const d = (data || {}) as { user?: { username: string; apiKey: string; plan?: string }; token?: string };
     if (!d.user?.apiKey) {
       setErr('Login succeeded but no API key was returned.');
+      setBusy(false);
       return;
     }
     store.setSession({ username: d.user.username, apiKey: d.user.apiKey, plan: d.user.plan }, d.token);
@@ -37,73 +38,77 @@ export default function LoginPage() {
     router.push('/dashboard');
   };
 
+  // Complete a full-page Google redirect sign-in (if one is pending)
+  useEffect(() => {
+    (async () => {
+      try {
+        const cred = await consumeGoogleRedirect();
+        if (cred && !done.current) {
+          done.current = true;
+          setBusy(true);
+          setNote('Completing Google sign-in…');
+          const r = await api.firebase({ idToken: cred.idToken });
+          if (!r.success) {
+            setErr(r.message);
+            setBusy(false);
+            setNote('');
+            return;
+          }
+          finish(r.data);
+        }
+      } catch (e) {
+        setErr(friendlyAuthError(e));
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const google = async () => {
     setErr('');
     setBusy(true);
     try {
-      const g = await signInWithGoogle();
-      const r = await api.firebase({ idToken: g.idToken });
+      const res = await signInWithGoogleSmart();
+      if (res === 'redirecting') {
+        setNote('Redirecting to Google…');
+        return;
+      }
+      const r = await api.firebase({ idToken: res.idToken });
       if (!r.success) {
         setErr(r.message);
+        setBusy(false);
         return;
       }
       finish(r.data);
     } catch (e) {
-      const m = e instanceof Error ? e.message : 'Google login failed';
-      setErr(/popup|closed|cancel/i.test(m) ? 'Google popup was closed. Try again.' : m);
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const submit = async () => {
-    setErr('');
-    setBusy(true);
-    try {
-      const r = await api.login({ email: email.trim(), password });
-      if (!r.success) {
-        setErr(r.message);
-        return;
-      }
-      finish(r.data);
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Login failed');
-    } finally {
+      setErr(friendlyAuthError(e));
       setBusy(false);
     }
   };
 
   return (
     <div className="mx-auto max-w-md px-4 py-16">
-      <div className="glass rounded-3xl p-8">
+      <div className="glass rounded-3xl p-8 text-center">
+        <div className="mx-auto mb-4 inline-flex rounded-2xl bg-gradient-to-br from-indigo-500/25 to-violet-500/25 p-3.5 text-indigo-300">
+          <ShieldCheck size={26} />
+        </div>
         <h1 className="text-2xl font-bold text-white">Welcome back</h1>
-        <p className="mt-1 text-sm text-zinc-400">Log in to manage your API key and quota.</p>
+        <p className="mt-1.5 text-sm text-zinc-400">One-tap sign-in with your Gmail. No passwords, no codes.</p>
         <button
           onClick={google}
           disabled={busy}
-          className="mt-6 flex w-full items-center justify-center gap-2.5 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-100 disabled:opacity-60"
+          className="mt-6 flex w-full items-center justify-center gap-2.5 rounded-xl bg-white px-4 py-3.5 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-100 disabled:opacity-70"
         >
-          <GoogleIcon /> {busy ? 'Opening Google…' : 'Continue with Google'}
+          {busy && !note ? <Loader2 size={18} className="animate-spin" /> : <GoogleIcon />}
+          {note || (busy ? 'Opening Google…' : 'Continue with Google')}
         </button>
-        <div className="my-5 flex items-center gap-3 text-xs text-zinc-500">
-          <span className="h-px flex-1 bg-white/10" /> or with email <span className="h-px flex-1 bg-white/10" />
-        </div>
-        <div className="space-y-3">
-          <input className="input" placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <input
-            className="input" placeholder="Password" type="password" value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && submit()}
-          />
-          {err && <p className="flex items-center gap-2 rounded-lg border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200"><AlertTriangle size={16} /> {err}</p>}
-          <button className="btn-ghost w-full" disabled={busy || !email || !password} onClick={submit}>
-            <LogIn size={16} /> {busy ? 'Logging in…' : 'Login with email'}
-          </button>
-        </div>
-        <div className="mt-5 flex items-center justify-between text-sm">
-          <Link href="/register" className="text-indigo-300 hover:text-white">Create account</Link>
-          <Link href="/forgot-password" className="text-zinc-400 hover:text-white">Forgot password?</Link>
-        </div>
+        {err && (
+          <p className="mt-4 flex items-start gap-2 rounded-xl border border-rose-400/30 bg-rose-500/10 px-3.5 py-2.5 text-left text-sm text-rose-200">
+            <AlertTriangle size={16} className="mt-0.5 shrink-0" /> {err}
+          </p>
+        )}
+        <p className="mt-6 text-sm text-zinc-400">
+          New to DEXTER APIS? <Link href="/register" className="font-medium text-indigo-300 hover:text-white">Create account</Link>
+        </p>
       </div>
     </div>
   );

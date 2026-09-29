@@ -1,11 +1,14 @@
 'use client';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
-import { AlertTriangle, ArrowRight } from 'lucide-react';
+import { Suspense, useEffect, useRef, useState } from 'react';
+import { AlertTriangle, Gift, Loader2 } from 'lucide-react';
 import { api, store } from '@/lib/api';
-import { signInWithGoogle } from '@/lib/firebase';
+import { consumeGoogleRedirect, friendlyAuthError, signInWithGoogleSmart } from '@/lib/firebase';
 import { useToast } from '@/components/Toast';
+
+const REF_KEY = 'dexter_pending_ref';
+
 function GoogleIcon() {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
@@ -21,97 +24,112 @@ function RegisterInner() {
   const router = useRouter();
   const qp = useSearchParams();
   const toast = useToast();
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [ref, setRef] = useState('');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    const r = qp.get('ref');
-    if (r) setRef(r);
-  }, [qp]);
+  const [note, setNote] = useState('');
+  const done = useRef(false);
 
   const finish = (data: unknown) => {
     const d = (data || {}) as { user?: { username: string; apiKey: string; plan?: string }; token?: string };
     if (!d.user?.apiKey) {
       setErr('Registered, but no API key was returned. Try logging in.');
+      setBusy(false);
       return;
     }
+    try { sessionStorage.removeItem(REF_KEY); } catch { /* noop */ }
     store.setSession({ username: d.user.username, apiKey: d.user.apiKey, plan: d.user.plan }, d.token);
     toast('Account ready — welcome aboard', 'success');
     router.push('/dashboard');
   };
 
+  useEffect(() => {
+    const q = qp.get('ref') || '';
+    let saved = '';
+    try { saved = sessionStorage.getItem(REF_KEY) || ''; } catch { /* noop */ }
+    if (q) setRef(q);
+    else if (saved) setRef(saved);
+
+    // Complete a full-page Google redirect sign-up (if one is pending)
+    (async () => {
+      try {
+        const cred = await consumeGoogleRedirect();
+        if (cred && !done.current) {
+          done.current = true;
+          setBusy(true);
+          setNote('Completing Google sign-up…');
+          const code = (q || saved).trim();
+          const r = await api.firebase({ idToken: cred.idToken, ...(code ? { referralCode: code } : {}) });
+          if (!r.success) {
+            setErr(r.message);
+            setBusy(false);
+            setNote('');
+            return;
+          }
+          finish(r.data);
+        }
+      } catch (e) {
+        setErr(friendlyAuthError(e));
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [qp]);
+
   const google = async () => {
     setErr('');
     setBusy(true);
+    try { sessionStorage.setItem(REF_KEY, ref.trim()); } catch { /* noop */ }
     try {
-      const g = await signInWithGoogle();
-      const r = await api.firebase({ idToken: g.idToken, ...(ref.trim() ? { referralCode: ref.trim() } : {}) });
+      const res = await signInWithGoogleSmart();
+      if (res === 'redirecting') {
+        setNote('Redirecting to Google…');
+        return;
+      }
+      const code = ref.trim();
+      const r = await api.firebase({ idToken: res.idToken, ...(code ? { referralCode: code } : {}) });
       if (!r.success) {
         setErr(r.message);
+        setBusy(false);
         return;
       }
       finish(r.data);
     } catch (e) {
-      const m = e instanceof Error ? e.message : 'Google sign-up failed';
-      setErr(/popup|closed|cancel/i.test(m) ? 'Google popup was closed. Try again.' : m);
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const direct = async () => {
-    setErr('');
-    setBusy(true);
-    try {
-      const r = await api.register({
-        username: username.trim(), email: email.trim(), password,
-        ...(ref.trim() ? { referralCode: ref.trim() } : {}),
-      });
-      if (!r.success) {
-        setErr(r.message);
-        return;
-      }
-      finish(r.data);
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Registration failed');
-    } finally {
+      setErr(friendlyAuthError(e));
       setBusy(false);
     }
   };
 
   return (
     <div className="mx-auto max-w-md px-4 py-16">
-      <div className="glass rounded-3xl p-8">
+      <div className="glass rounded-3xl p-8 text-center">
+        <div className="mx-auto mb-4 inline-flex rounded-2xl bg-gradient-to-br from-indigo-500/25 to-violet-500/25 p-3.5 text-indigo-300">
+          <Gift size={26} />
+        </div>
         <h1 className="text-2xl font-bold text-white">Create your account</h1>
-        <p className="mt-1 text-sm text-zinc-400">Free forever plan · 100 calls every month · no email code needed.</p>
-        <div className="mt-6">
-          <input className="input" placeholder="Referral code (optional)" value={ref} onChange={(e) => setRef(e.target.value)} />
+        <p className="mt-1.5 text-sm text-zinc-400">Free forever plan · 100 calls every month · 30-second setup.</p>
+        <div className="mt-6 text-left">
+          <input
+            className="input"
+            placeholder="Referral code (optional — earns you bonus calls)"
+            value={ref}
+            onChange={(e) => setRef(e.target.value)}
+          />
         </div>
         <button
           onClick={google}
           disabled={busy}
-          className="mt-3 flex w-full items-center justify-center gap-2.5 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-100 disabled:opacity-60"
+          className="mt-3 flex w-full items-center justify-center gap-2.5 rounded-xl bg-white px-4 py-3.5 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-100 disabled:opacity-70"
         >
-          <GoogleIcon /> {busy ? 'Opening Google…' : 'Sign up with Google'}
+          {busy && !note ? <Loader2 size={18} className="animate-spin" /> : <GoogleIcon />}
+          {note || (busy ? 'Opening Google…' : 'Sign up with Google')}
         </button>
-        <div className="my-5 flex items-center gap-3 text-xs text-zinc-500">
-          <span className="h-px flex-1 bg-white/10" /> or with email <span className="h-px flex-1 bg-white/10" />
-        </div>
-        <div className="space-y-3">
-          <input className="input" placeholder="Username (letters, numbers, _)" value={username} onChange={(e) => setUsername(e.target.value)} />
-          <input className="input" placeholder="Email address" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <input className="input" placeholder="Password (6+ characters)" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          {err && <p className="flex items-center gap-2 rounded-lg border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200"><AlertTriangle size={16} /> {err}</p>}
-          <button className="btn-primary w-full" disabled={busy || !username || !email || !password} onClick={direct}>
-            {busy ? 'Creating…' : <>Create account <ArrowRight size={16} /></>}
-          </button>
-        </div>
-        <p className="mt-5 text-center text-sm text-zinc-400">
-          Already have an account? <Link href="/login" className="text-indigo-300 hover:text-white">Log in</Link>
+        {err && (
+          <p className="mt-4 flex items-start gap-2 rounded-xl border border-rose-400/30 bg-rose-500/10 px-3.5 py-2.5 text-left text-sm text-rose-200">
+            <AlertTriangle size={16} className="mt-0.5 shrink-0" /> {err}
+          </p>
+        )}
+        <p className="mt-6 text-sm text-zinc-400">
+          Already have an account? <Link href="/login" className="font-medium text-indigo-300 hover:text-white">Log in</Link>
         </p>
       </div>
     </div>
