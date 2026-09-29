@@ -1,5 +1,5 @@
 'use client';
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CircleAlert, Crown, FlaskConical, KeyRound, Play } from 'lucide-react';
 import { api, callApiEndpoint, store } from '@/lib/api';
@@ -44,6 +44,7 @@ function DocsInner() {
   const [key, setKey] = useState('');
   const [vals, setVals] = useState<Record<string, string>>({});
   const [out, setOut] = useState('');
+  const outRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
 
@@ -89,6 +90,7 @@ function DocsInner() {
     try {
       const r = await callApiEndpoint(normPath(epOf(sel)), { ...vals, apikey: key });
       setOut(JSON.stringify(r, null, 2).slice(0, 12000));
+      setTimeout(() => outRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
       const st = (r as { status?: number })?.status;
       if (st === 403) toast('VIP endpoint — upgrade your plan to use it', 'error');
       else if (st === 429) toast('Monthly quota exhausted — see Plans', 'error');
@@ -131,7 +133,7 @@ function DocsInner() {
         </p>
       )}
 
-      <div className="mt-5">
+      <div className="mt-5 lg:sticky lg:top-[64px] lg:z-30 lg:rounded-2xl lg:border lg:border-white/10 lg:bg-[#07070d]/85 lg:p-2 lg:backdrop-blur-xl">
         <Tabs
           tabs={[{ id: ALL, label: `All (${total})` }, ...cats.map((c) => ({ id: c.name, label: `${c.name} (${c.items.length})` }))]}
           value={cat}
@@ -140,14 +142,14 @@ function DocsInner() {
       </div>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-5">
-        <div className="max-h-[70vh] space-y-2 overflow-y-auto pr-1 lg:col-span-2">
+        <div className="grid content-start gap-2 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-1 lg:max-h-[70vh] lg:overflow-y-auto lg:pr-1 nice-scroll">
           {items.map((it) => {
             const active = !!sel && epOf(sel) === epOf(it);
             return (
               <button
                 key={`${it.__cat}:${epOf(it)}`}
                 onClick={() => pick(it)}
-                className={`w-full rounded-xl border p-3 text-left transition ${active ? 'border-indigo-400/60 bg-indigo-500/10' : 'border-white/10 bg-white/[0.02] hover:border-indigo-400/40'}`}
+                className={`w-full card-glow rounded-xl border p-3 text-left transition ${active ? 'border-indigo-400/60 bg-indigo-500/10' : 'border-white/10 bg-white/[0.02] hover:border-indigo-400/40'}`}
               >
                 <span className="flex items-center gap-2 text-sm font-medium text-white">
                   {it.name}
@@ -193,7 +195,7 @@ function DocsInner() {
                 <CopyButton text={(process.env.NEXT_PUBLIC_API_URL || 'https://dexter-apis.onrender.com') + curl.slice(4)} label="Copy URL" />
               </div>
               {err && <p className="text-sm text-rose-300">{err}</p>}
-              {out && <CodeBlock code={out} title="Live response" />}
+              {out && <div ref={outRef} className="response-cap nice-scroll overflow-y-auto rounded-2xl scroll-mt-24"><CodeBlock code={out} title="Live response" /></div>}
             </div>
           )}
         </div>

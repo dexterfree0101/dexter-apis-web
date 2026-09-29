@@ -41,6 +41,7 @@ export default function Home() {
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
+          <div className="hero-grid" />
           <Fireworks density={0.8} />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#07070d]" />
         </div>
@@ -65,7 +66,7 @@ export default function Home() {
           </Reveal>
           <Reveal delay={240}>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Link href="/register" className="btn-primary px-7 py-3 text-base">
+              <Link href="/register" className="btn-primary btn-shine px-7 py-3 text-base">
                 Get a free API key <ArrowRight size={18} />
               </Link>
               <Link href="/docs" className="btn-ghost px-7 py-3 text-base">Explore docs</Link>
@@ -74,7 +75,7 @@ export default function Home() {
           <Reveal delay={320}>
             <div className="mx-auto mt-12 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
               {STATS.map((s) => (
-                <div key={s.v} className="glass animate-float rounded-2xl px-4 py-4">
+                <div key={s.v} className="glass stat-glow animate-float rounded-2xl px-4 py-4">
                   <p className="text-2xl font-bold text-white">{s.k}</p>
                   <p className="text-xs text-zinc-400">{s.v}</p>
                 </div>
@@ -87,13 +88,13 @@ export default function Home() {
       {/* FEATURES */}
       <section className="mx-auto max-w-6xl px-4 py-14">
         <Reveal>
-          <h2 className="text-center text-2xl font-bold text-white sm:text-3xl">Everything you need to ship</h2>
+          <h2 className="text-center text-2xl font-bold text-white sm:text-3xl">Everything you need to <span className="animate-gradient bg-gradient-to-r from-indigo-300 via-violet-300 to-cyan-200 bg-clip-text text-transparent">ship</span></h2>
           <p className="mt-2 text-center text-zinc-400">A single REST API with predictable JSON and quota headers.</p>
         </Reveal>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((f, i) => (
             <Reveal key={f.t} delay={(i % 3) * 90}>
-              <div className="glass group h-full rounded-2xl p-6 transition hover:border-indigo-400/40 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)]">
+              <div className="glass card-glow group h-full rounded-2xl p-6 hover:-translate-y-1">
                 <div className="mb-4 inline-flex rounded-xl bg-gradient-to-br from-indigo-500/25 to-violet-500/25 p-3 text-indigo-300 transition group-hover:scale-110 group-hover:text-indigo-200">
                   {f.icon}
                 </div>
@@ -133,7 +134,7 @@ export default function Home() {
       {/* PLANS */}
       <section className="mx-auto max-w-6xl px-4 py-14">
         <Reveal>
-          <h2 className="text-center text-2xl font-bold text-white sm:text-3xl">Simple pricing</h2>
+          <h2 className="text-center text-2xl font-bold text-white sm:text-3xl">Simple <span className="animate-gradient bg-gradient-to-r from-indigo-300 via-violet-300 to-cyan-200 bg-clip-text text-transparent">pricing</span></h2>
           <p className="mt-2 text-center text-zinc-400">Manual bank transfer. Human approval. Zero dark patterns.</p>
         </Reveal>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -167,7 +168,7 @@ export default function Home() {
               <h2 className="flex items-center justify-center gap-2 text-2xl font-bold text-white"><Users size={24} className="text-indigo-300" /> Invite, earn, repeat</h2>
               <p className="mt-2 text-zinc-400">Every friend who joins gives you bonus calls. Hit the milestone and Plus is on us.</p>
             </div>
-            <Link href="/register" className="btn-primary">Start referring <ArrowRight size={16} /></Link>
+            <Link href="/register" className="btn-primary btn-shine">Start referring <ArrowRight size={16} /></Link>
             <p className="flex items-center gap-2 text-xs text-zinc-500"><Wrench size={14} /> Movies · Adult · Tools · Fun · Stalker · Anime — 43 endpoints and counting</p>
           </div>
         </Reveal>

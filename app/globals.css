@@ -214,3 +214,84 @@ body {
   background: radial-gradient(circle, rgba(139, 92, 246, 0.18), transparent 70%);
   animation: orbDrift 18s ease-in-out infinite reverse;
 }
+
+/* ---------- beauty pack ---------- */
+::selection {
+  background: rgba(129, 140, 248, 0.35);
+  color: #fff;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(129, 140, 248, 0.45) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(129, 140, 248, 0.35);
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(129, 140, 248, 0.6);
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(129, 140, 248, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(129, 140, 248, 0.07) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%);
+}
+
+.card-glow {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.card-glow:hover {
+  border-color: rgba(129, 140, 248, 0.45);
+  box-shadow: 0 0 32px rgba(99, 102, 241, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.stat-glow {
+  border-color: rgba(129, 140, 248, 0.25);
+  box-shadow: 0 0 24px rgba(99, 102, 241, 0.12);
+}
+
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shine::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: skewX(-20deg);
+  animation: shine 3.5s ease-in-out infinite;
+}
+@keyframes shine {
+  0% { left: -60%; }
+  55% { left: 130%; }
+  100% { left: 130%; }
+}
+
+.response-cap {
+  max-height: 440px;
+}
+
+.logo3d-img {
+  overflow: hidden;
+}
+.logo3d-img img {
+  border-radius: 22%;
+}
