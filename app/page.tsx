@@ -15,7 +15,7 @@ import { API_BASE } from '@/lib/api';
 const STATS: { n: number | null; suffix: string; v: string; static: string }[] = [
   { n: 275, suffix: '+', v: 'LIVE ENDPOINTS', static: '' },
   { n: 19, suffix: '', v: 'API CATEGORIES', static: '' },
-  { n: 100, suffix: '', v: 'FREE CALLS / MO', static: '' },
+  { n: 100, suffix: '', v: 'FREE CALLS / DAY', static: '' },
   { n: null, suffix: '', v: 'HUMAN SUPPORT', static: '24/7' },
 ];
 
@@ -32,7 +32,7 @@ const FEATURES = [
 ];
 
 const PLANS = [
-  { n: 'Free', p: 'Rs. 0', c: '100 calls / mo', f: ['Standard API access', 'Community support'], hot: false },
+  { n: 'Free', p: 'Rs. 0', c: '100 calls / day', f: ['Standard API access', 'Community support'], hot: false },
   { n: 'Plus', p: 'Rs. 500', c: '1,000 calls / mo', f: ['VIP API access', 'Priority support'], hot: true },
   { n: 'Pro', p: 'Rs. 1,000', c: '2,500 calls / mo', f: ['VIP + fast lane', 'Customer care 24/7'], hot: false },
   { n: 'Custom', p: "Let's talk", c: 'tailored limits', f: ['Custom APIs', 'Your dev name'], hot: false },
@@ -40,10 +40,10 @@ const PLANS = [
 
 const FAQS = [
   { q: 'What is Dexter API?', a: 'A REST API platform with 131+ endpoints for AI text, downloaders, movies, Sri Lankan news, tools, fun and more. One key works everywhere and every response is clean JSON.' },
-  { q: 'Is there a free tier?', a: 'Yes — 100 calls every month, free forever. No credit card required. Upgrade to Plus or Pro when you need VIP endpoints and higher limits.' },
+  { q: 'Is there a free tier?', a: 'Yes — 100 calls every day, auto-refilled at midnight, free forever. No credit card required. Upgrade to Plus or Pro when you need VIP endpoints and higher limits.' },
   { q: 'How do API keys work?', a: 'Sign in with Google, copy your key from the dashboard and append ?apikey=YOUR_KEY to any endpoint. You can also paste it into the docs playground to try endpoints live.' },
   { q: 'Which programming languages are supported?', a: 'Any language that speaks HTTP. The docs include a copy-paste cURL command for every endpoint, generated live from your parameters.' },
-  { q: 'What happens when my quota runs out?', a: 'Calls return HTTP 429 until the next monthly reset. Upgrade your plan or earn bonus calls through referrals to keep going.' },
+  { q: 'What happens when my quota runs out?', a: "Calls return HTTP 429 until the next reset — Free refills every midnight, paid plans monthly. Upgrade your plan or earn bonus calls through referrals to keep going." },
 ];
 
 export default function Home() {

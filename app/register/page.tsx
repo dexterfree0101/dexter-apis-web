@@ -106,7 +106,7 @@ function RegisterInner() {
           <Gift size={26} />
         </div>
         <h1 className="text-2xl font-bold text-white">Create your account</h1>
-        <p className="mt-1.5 text-sm text-zinc-400">Free forever plan · 100 calls every month · 30-second setup.</p>
+        <p className="mt-1.5 text-sm text-zinc-400">Free forever plan · 100 calls every day · 30-second setup.</p>
         <div className="mt-6 text-left">
           <input
             className="input"

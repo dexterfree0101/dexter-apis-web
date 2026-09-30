@@ -80,7 +80,7 @@ export default function PlansPage() {
             {p.id === 'plus' && <span className="mb-2 inline-block w-fit rounded-full bg-indigo-500 px-2.5 py-0.5 text-[11px] font-semibold text-white">POPULAR</span>}
             <p className="text-lg font-semibold text-white">{p.name}</p>
             <p className="mt-1 text-3xl font-bold text-white">{p.price > 0 ? `Rs.${p.price}` : p.id === 'custom' ? "Let's talk" : 'Rs. 0'}</p>
-            <p className="text-sm text-indigo-300">{p.calls > 0 ? `${p.calls.toLocaleString()} calls / month` : 'tailored limits'}</p>
+            <p className="text-sm text-indigo-300">{p.calls > 0 ? `${p.calls.toLocaleString()} calls / ${p.id === 'free' ? 'day (auto-refill)' : 'month'}` : 'tailored limits'}</p>
             <ul className="mt-4 flex-1 space-y-2 text-sm text-zinc-300">
               {(p.features || []).map((f) => <li key={f} className="flex items-start gap-2"><BadgeCheck size={15} className="mt-0.5 shrink-0 text-emerald-400" /> {f}</li>)}
             </ul>

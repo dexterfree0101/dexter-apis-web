@@ -31,7 +31,7 @@ const STATUS_CODES = [
   { code: '401', label: 'Unauthorized - Missing or invalid API key', tone: 'err' },
   { code: '403', label: 'Forbidden - VIP endpoint or quota exhausted', tone: 'err' },
   { code: '404', label: 'Not Found - No data for the given input', tone: 'err' },
-  { code: '429', label: 'Too Many Requests - Monthly quota exhausted', tone: 'warn' },
+  { code: '429', label: 'Too Many Requests - Quota exhausted (Free refills daily)', tone: 'warn' },
   { code: '500', label: 'Internal Server Error - Something broke on our side', tone: 'err' },
 ];
 
@@ -159,7 +159,7 @@ function DocsInner() {
         [ck]: { out: JSON.stringify(r, null, 2).slice(0, 15000), ms: dt, ok, code: String(rec.statusCode ?? rec.status ?? '') },
       }));
       if (rec.status === 403 || rec.statusCode === 403) toast('VIP endpoint — upgrade your plan to use it', 'error');
-      else if (rec.status === 429 || rec.statusCode === 429) toast('Monthly quota exhausted — see Plans', 'error');
+      else if (rec.status === 429 || rec.statusCode === 429) toast('Quota exhausted — Free refills daily', 'error');
     } catch (e) {
       toast(e instanceof Error ? e.message : 'Request failed', 'error');
     } finally {
