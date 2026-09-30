@@ -8,7 +8,7 @@ import { ToastProvider } from '@/components/Toast';
 const grotesk = Space_Grotesk({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'DEXTER APIS — 130+ Production APIs',
+  title: 'DEXTER APIS — 275+ Production APIs',
   description: 'AI, downloaders, movies, Sri Lankan news, tools, fun and more. Free tier forever, subscriptions for power users.',
 };
 

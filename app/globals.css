@@ -159,6 +159,36 @@ body {
   100% { transform: translateX(320%); }
 }
 
+/* ---------- orbital fallback ---------- */
+.orbit-ring {
+  position: absolute;
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  border-radius: 9999px;
+  animation: orbitSpin 10s linear infinite;
+}
+.orbit-ring-2 {
+  animation-duration: 16s;
+  animation-direction: reverse;
+  border-color: rgba(167, 139, 250, 0.22);
+}
+.orbit-ring-3 {
+  animation-duration: 24s;
+  border-color: rgba(103, 232, 249, 0.16);
+}
+.orbit-dot {
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: #c7d2fe;
+  box-shadow: 0 0 10px rgba(165, 180, 252, 0.9);
+}
+@keyframes orbitSpin {
+  to { transform: rotate(360deg); }
+}
+
 /* ---------- code containment ---------- */
 .codewrap {
   min-width: 0;

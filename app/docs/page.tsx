@@ -1,5 +1,5 @@
 'use client';
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   Search, ChevronDown, ChevronRight, Play, KeyRound, Crown, Link2,
@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { api, callApiEndpoint, store, API_BASE } from '@/lib/api';
 import CodeBlock from '@/components/CodeBlock';
+import { Progress, ProgressLabel, ProgressValue } from '@/components/ui/progress';
 import { useToast } from '@/components/Toast';
 
 const VIP_CATS = ['AI', 'Download', 'Image', 'NSFW', 'Stalker', 'Adult'];
@@ -92,6 +93,8 @@ function DocsInner() {
   const [valsMap, setValsMap] = useState<Record<string, Record<string, string>>>({});
   const [resMap, setResMap] = useState<Record<string, CardRes>>({});
   const [busyMap, setBusyMap] = useState<Record<string, boolean>>({});
+  const [progMap, setProgMap] = useState<Record<string, number>>({});
+  const progTimers = useRef<Record<string, ReturnType<typeof setInterval> | ReturnType<typeof setTimeout>>>({});
   const [err, setErr] = useState('');
 
   useEffect(() => {
@@ -135,6 +138,11 @@ function DocsInner() {
   const run = async (ck: string, it: SvcItem) => {
     if (!isReady(it)) return;
     setBusyMap((m) => ({ ...m, [ck]: true }));
+    setProgMap((m) => ({ ...m, [ck]: 0 }));
+    clearInterval(progTimers.current[ck] as ReturnType<typeof setInterval>);
+    progTimers.current[ck] = setInterval(() => {
+      setProgMap((m) => ({ ...m, [ck]: Math.min(90, (m[ck] ?? 0) + 6) }));
+    }, 120);
     setResMap((m) => {
       const n = { ...m };
       delete n[ck];
@@ -155,6 +163,15 @@ function DocsInner() {
     } catch (e) {
       toast(e instanceof Error ? e.message : 'Request failed', 'error');
     } finally {
+      clearInterval(progTimers.current[ck] as ReturnType<typeof setInterval>);
+      setProgMap((m) => ({ ...m, [ck]: 100 }));
+      progTimers.current[ck] = setTimeout(() => {
+        setProgMap((m) => {
+          const n = { ...m };
+          delete n[ck];
+          return n;
+        });
+      }, 900);
       setBusyMap((m) => ({ ...m, [ck]: false }));
     }
   };
@@ -296,6 +313,7 @@ function DocsInner() {
                 const ready = isReady(it);
                 const res = resMap[ck];
                 const busy = !!busyMap[ck];
+                const prog = progMap[ck];
                 const vals = valsFor(ck, it);
                 return (
                   <div key={ck} className={`overflow-hidden rounded-xl border border-white/10 bg-[#1f1f1f] transition ${open ? 'border-indigo-400/30' : ''} ${ready ? '' : 'opacity-70'}`}>
@@ -371,10 +389,13 @@ function DocsInner() {
                             <Link2 size={15} />
                           </button>
                         </div>
-                        {busy && (
-                          <div className="h-1 overflow-hidden rounded-full bg-white/10">
-                            <div className="progress-bar h-full w-1/3 rounded-full bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-300" />
-                          </div>
+                        {prog !== undefined && (
+                          <Progress value={prog}>
+                            <div className="flex items-center justify-between">
+                              <ProgressLabel>{busy ? 'Executing request' : 'Done'}</ProgressLabel>
+                              <ProgressValue />
+                            </div>
+                          </Progress>
                         )}
                         {!ready && <p className="text-xs text-zinc-500">This endpoint is not live yet — check back soon.</p>}
                         {res && (

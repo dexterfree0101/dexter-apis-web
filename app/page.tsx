@@ -3,18 +3,20 @@ import { useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowRight, Activity, BadgeCheck, Bot, CloudDownload, Flame, Gauge, Gift,
-  Newspaper, ShieldCheck, Users, Wrench, Clapperboard, Zap, ChevronDown,
+  Newspaper, ShieldCheck, Users, Wrench, Clapperboard, ChevronDown,
 } from 'lucide-react';
 import CodeBlock from '@/components/CodeBlock';
+import Globe from '@/components/Globe';
+import NumberTicker from '@/components/NumberTicker';
 import AvatarGroup from '@/components/AvatarGroup';
 import Reveal from '@/components/Reveal';
 import { API_BASE } from '@/lib/api';
 
-const STATS = [
-  { k: '131+', v: 'LIVE ENDPOINTS' },
-  { k: '14', v: 'API CATEGORIES' },
-  { k: '100', v: 'FREE CALLS / MO' },
-  { k: '24/7', v: 'HUMAN SUPPORT' },
+const STATS: { n: number | null; suffix: string; v: string; static: string }[] = [
+  { n: 275, suffix: '+', v: 'LIVE ENDPOINTS', static: '' },
+  { n: 19, suffix: '', v: 'API CATEGORIES', static: '' },
+  { n: 100, suffix: '', v: 'FREE CALLS / MO', static: '' },
+  { n: null, suffix: '', v: 'HUMAN SUPPORT', static: '24/7' },
 ];
 
 const FEATURES = [
@@ -59,7 +61,7 @@ export default function Home() {
           <div>
             <Reveal>
               <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-500/10 px-4 py-1.5 text-xs font-medium text-indigo-200">
-                v3.7 — 131 endpoints, apps, AI tools & new docs
+                v4.0 — 275 endpoints, games, makers & premium UI
               </div>
             </Reveal>
             <Reveal delay={80}>
@@ -84,8 +86,14 @@ export default function Home() {
             </Reveal>
           </div>
           <Reveal delay={200}>
-            <div className="glass mx-auto flex aspect-square w-full max-w-[360px] items-center justify-center rounded-3xl shadow-[0_0_60px_rgba(99,102,241,0.15)]">
-              <Zap size={150} strokeWidth={1.5} className="text-indigo-300" fill="currentColor" />
+            <div className="glass relative mx-auto aspect-square w-full max-w-[360px] overflow-hidden rounded-3xl shadow-[0_0_60px_rgba(99,102,241,0.2)]">
+              <span className="pointer-events-none absolute left-0 right-0 top-5 z-10 bg-gradient-to-b from-white to-white/10 bg-clip-text text-center text-4xl font-bold text-transparent">
+                DEXTER
+              </span>
+              <div className="absolute inset-0 top-10">
+                <Globe className="h-full w-full" />
+              </div>
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(99,102,241,0.25),rgba(255,255,255,0))]" />
             </div>
           </Reveal>
         </div>
@@ -102,7 +110,16 @@ export default function Home() {
           {STATS.map((s, i) => (
             <Reveal key={s.v} delay={i * 80}>
               <div className="glass stat-glow rounded-2xl px-6 py-6">
-                <p className="text-gradient text-3xl font-bold">{s.k}</p>
+                <p className="text-gradient text-3xl font-bold">
+                  {s.n !== null ? (
+                    <>
+                      <NumberTicker value={s.n} />
+                      {s.suffix}
+                    </>
+                  ) : (
+                    s.static
+                  )}
+                </p>
                 <p className="mt-1 text-xs tracking-wider text-zinc-500">{s.v}</p>
               </div>
             </Reveal>
@@ -226,7 +243,7 @@ export default function Home() {
               <p className="mt-2 text-zinc-400">Every friend who joins gives you bonus calls. Hit the milestone and Plus is on us.</p>
             </div>
             <Link href="/register" className="btn-primary">Start referring <ArrowRight size={16} /></Link>
-            <p className="flex items-center gap-2 text-xs text-zinc-500"><Wrench size={14} /> Movies · Adult · Tools · Fun · Stalker · Anime — 131 endpoints and counting</p>
+            <p className="flex items-center gap-2 text-xs text-zinc-500"><Wrench size={14} /> Movies · Adult · Tools · Fun · Stalker · Games · Makers — 275 endpoints and counting</p>
           </div>
         </Reveal>
       </section>
