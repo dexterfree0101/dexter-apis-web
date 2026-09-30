@@ -28,18 +28,18 @@ function highlightJson(src: string) {
 
 export default function CodeBlock({ code, title = 'Response', maxHeight = 420 }: { code: string; title?: string; maxHeight?: number }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-white/10 bg-black/50">
+    <div className="codewrap w-full overflow-hidden rounded-xl border border-white/10 bg-black/50">
       <div className="flex items-center justify-between border-b border-white/10 px-4 py-2">
-        <div className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-rose-500/80" />
-          <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
-          <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
-          <span className="ml-2 text-xs text-zinc-400">{title}</span>
+        <div className="flex min-w-0 items-center gap-1.5">
+          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-rose-500/80" />
+          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-amber-400/80" />
+          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-400/80" />
+          <span className="ml-2 truncate text-xs text-zinc-400">{title}</span>
         </div>
-        <CopyButton text={code} label="" className="border-0 bg-transparent px-2" />
+        <CopyButton text={code} label="" className="shrink-0 border-0 bg-transparent px-2" />
       </div>
-      <pre className="overflow-auto p-4 font-mono text-[12.5px] leading-relaxed" style={{ maxHeight }}>
-        <code>{highlightJson(code)}</code>
+      <pre className="overflow-x-auto p-4 font-mono text-[12.5px] leading-relaxed" style={{ maxHeight }}>
+        <code className="whitespace-pre">{highlightJson(code)}</code>
       </pre>
     </div>
   );

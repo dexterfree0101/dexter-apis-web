@@ -10,13 +10,13 @@ export function Logo3D({ size = 40 }: { size?: number }) {
       <svg viewBox="0 0 48 48" width={size} height={size} className="logo3d-ring" aria-hidden>
         <defs>
           <linearGradient id="logoRing" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#e4e4e7" />
-            <stop offset="50%" stopColor="#a1a1aa" />
-            <stop offset="100%" stopColor="#71717a" />
+            <stop offset="0%" stopColor="#818cf8" />
+            <stop offset="50%" stopColor="#a78bfa" />
+            <stop offset="100%" stopColor="#22d3ee" />
           </linearGradient>
         </defs>
         <ellipse cx="24" cy="24" rx="21" ry="21" fill="none" stroke="url(#logoRing)" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="100 32" />
-        <circle cx="24" cy="3" r="2.6" fill="#fafafa" />
+        <circle cx="24" cy="3" r="2.6" fill="#22d3ee" />
       </svg>
       <span className="logo3d-core logo3d-img">
         <img src="/logo.png" alt="DEXTER APIS logo" width={size} height={size} className="h-full w-full object-cover" />
@@ -30,7 +30,7 @@ export function Brand({ size = 40 }: { size?: number }) {
     <Link href="/" className="group flex items-center gap-2.5">
       <Logo3D size={size} />
       <span className="text-lg font-bold tracking-tight text-white">
-        DEXTER APIS
+        DEXTER <span className="text-gradient">APIS</span>
       </span>
     </Link>
   );
@@ -70,7 +70,7 @@ export default function Navbar() {
           <Link
             href="/dashboard"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-black transition hover:bg-zinc-200"
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2.5 text-sm font-medium text-white shadow-[0_0_18px_rgba(99,102,241,0.35)] transition hover:opacity-90"
           >
             <LayoutDashboard size={16} /> Dashboard
           </Link>
@@ -93,7 +93,7 @@ export default function Navbar() {
           <Link
             href="/register"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-black transition hover:bg-zinc-200"
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2.5 text-sm font-medium text-white shadow-[0_0_18px_rgba(99,102,241,0.35)] transition hover:opacity-90"
           >
             <Sparkles size={16} /> Get API Key
           </Link>
@@ -108,7 +108,7 @@ export default function Navbar() {
         <Brand />
         <nav className="hidden items-center gap-1 md:flex">{links}</nav>
         <button
-          className="rounded-xl border border-white/10 p-2.5 text-zinc-200 transition hover:border-white/30 md:hidden"
+          className="rounded-xl border border-white/10 p-2.5 text-zinc-200 transition hover:border-indigo-400/40 md:hidden"
           onClick={() => setOpen(!open)}
           aria-label="Menu"
         >

@@ -10,7 +10,7 @@ export default function Footer() {
     <footer className="border-t border-white/10 bg-black/30">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 md:grid-cols-4">
         <div>
-          <p className="text-lg font-bold text-white">DEXTER APIS</p>
+          <p className="text-lg font-bold text-white">DEXTER <span className="text-gradient">APIS</span></p>
           <p className="mt-2 text-sm text-zinc-400">131+ production APIs — AI, movies, downloaders, LK news, tools, fun and more. Free tier forever.</p>
         </div>
         <div>
