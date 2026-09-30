@@ -1,19 +1,20 @@
+'use client';
+import { useState } from 'react';
 import Link from 'next/link';
 import {
-  ArrowRight, BadgeCheck, Bot, CloudDownload, Flame, Gauge, Gift,
-  Newspaper, ShieldCheck, Sparkles, Users, Wrench, Clapperboard,
+  ArrowRight, Activity, BadgeCheck, Bot, CloudDownload, Flame, Gauge, Gift,
+  Newspaper, ShieldCheck, Users, Wrench, Clapperboard, Zap, ChevronDown,
 } from 'lucide-react';
-import Fireworks from '@/components/Fireworks';
 import CodeBlock from '@/components/CodeBlock';
 import AvatarGroup from '@/components/AvatarGroup';
 import Reveal from '@/components/Reveal';
 import { API_BASE } from '@/lib/api';
 
 const STATS = [
-  { k: '131+', v: 'Live endpoints' },
-  { k: '100', v: 'Free calls / month' },
-  { k: '11', v: 'News sources' },
-  { k: '14', v: 'API categories' },
+  { k: '131+', v: 'LIVE ENDPOINTS' },
+  { k: '14', v: 'API CATEGORIES' },
+  { k: '100', v: 'FREE CALLS / MO' },
+  { k: '24/7', v: 'HUMAN SUPPORT' },
 ];
 
 const FEATURES = [
@@ -35,75 +36,83 @@ const PLANS = [
   { n: 'Custom', p: "Let's talk", c: 'tailored limits', f: ['Custom APIs', 'Your dev name'], hot: false },
 ];
 
+const FAQS = [
+  { q: 'What is Dexter API?', a: 'A REST API platform with 131+ endpoints for AI text, downloaders, movies, Sri Lankan news, tools, fun and more. One key works everywhere and every response is clean JSON.' },
+  { q: 'Is there a free tier?', a: 'Yes — 100 calls every month, free forever. No credit card required. Upgrade to Plus or Pro when you need VIP endpoints and higher limits.' },
+  { q: 'How do API keys work?', a: 'Sign in with Google, copy your key from the dashboard and append ?apikey=YOUR_KEY to any endpoint. You can also paste it into the docs playground to try endpoints live.' },
+  { q: 'Which programming languages are supported?', a: 'Any language that speaks HTTP. The docs include copy-paste samples for cURL, Node.js and Python for every endpoint.' },
+  { q: 'What happens when my quota runs out?', a: 'Calls return HTTP 429 until the next monthly reset. Upgrade your plan or earn bonus calls through referrals to keep going.' },
+];
+
 export default function Home() {
+  const [faq, setFaq] = useState<number | null>(null);
+
   return (
     <div>
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="hero-grid" />
-          <Fireworks density={0.8} />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#07070d]" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#181818]" />
         </div>
-        <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-20 text-center sm:pt-28">
-          <Reveal>
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-500/10 px-4 py-1.5 text-xs font-medium text-indigo-200">
-              <Sparkles size={14} /> v3.7 — 131 endpoints, apps, AI tools & new docs
-            </div>
-          </Reveal>
-          <Reveal delay={80}>
-            <h1 className="mx-auto max-w-3xl text-4xl font-bold leading-tight tracking-tight text-white sm:text-6xl">
-              APIs that{' '}
-              <span className="animate-gradient bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-300 bg-clip-text text-transparent">
-                just work
-              </span>
-            </h1>
-          </Reveal>
-          <Reveal delay={160}>
-            <p className="mx-auto mt-5 max-w-xl text-base text-zinc-400 sm:text-lg">
-              One key for AI, movies, downloaders, LK news, tools and fun. Start free with 100 calls every month — upgrade when you grow.
-            </p>
-          </Reveal>
-          <Reveal delay={240}>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Link href="/register" className="btn-primary btn-shine px-7 py-3 text-base">
-                Get a free API key <ArrowRight size={18} />
-              </Link>
-              <Link href="/docs" className="btn-ghost px-7 py-3 text-base">Explore docs</Link>
-            </div>
-          </Reveal>
-          <Reveal delay={320}>
-            <div className="mx-auto mt-12 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
-              {STATS.map((s) => (
-                <div key={s.v} className="glass stat-glow animate-float rounded-2xl px-4 py-4">
-                  <p className="text-2xl font-bold text-white">{s.k}</p>
-                  <p className="text-xs text-zinc-400">{s.v}</p>
-                </div>
-              ))}
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:py-24 lg:grid-cols-[1fr_360px]">
+          <div>
+            <Reveal>
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-zinc-300">
+                v3.7 — 131 endpoints, apps, AI tools & new docs
+              </div>
+            </Reveal>
+            <Reveal delay={80}>
+              <h1 className="max-w-xl text-4xl font-bold leading-tight tracking-tight text-white sm:text-6xl">
+                One API Platform for Apps, Bots and Automation
+              </h1>
+            </Reveal>
+            <Reveal delay={160}>
+              <p className="mt-5 max-w-lg text-base text-zinc-400 sm:text-lg">
+                AI, downloaders, movies, LK news, tools and fun. One key, predictable JSON and a free tier that never expires.
+              </p>
+            </Reveal>
+            <Reveal delay={240}>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Link href="/register" className="btn-primary px-7 py-3 text-base">
+                  Get Started
+                </Link>
+                <a href="#stats" className="btn-ghost px-7 py-3 text-base">
+                  <Activity size={18} /> Statistic
+                </a>
+              </div>
+            </Reveal>
+          </div>
+          <Reveal delay={200}>
+            <div className="glass mx-auto flex aspect-square w-full max-w-[360px] items-center justify-center rounded-3xl">
+              <Zap size={150} strokeWidth={1.5} className="text-white" fill="currentColor" />
             </div>
           </Reveal>
         </div>
       </section>
 
-      {/* FEATURES */}
-      <section className="mx-auto max-w-6xl px-4 py-14">
+      {/* STATS */}
+      <section id="stats" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-14">
         <Reveal>
-          <h2 className="text-center text-2xl font-bold text-white sm:text-3xl">Everything you need to <span className="animate-gradient bg-gradient-to-r from-indigo-300 via-violet-300 to-cyan-200 bg-clip-text text-transparent">ship</span></h2>
-          <p className="mt-2 text-center text-zinc-400">A single REST API with predictable JSON and quota headers.</p>
+          <h2 className="text-center text-2xl font-bold text-white sm:text-3xl">API Statistics</h2>
+          <div className="mx-auto mt-3 h-0.5 w-16 bg-white" />
+          <p className="mt-3 text-center text-zinc-400">A snapshot of what Dexter puts in your hands.</p>
         </Reveal>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((f, i) => (
-            <Reveal key={f.t} delay={(i % 3) * 90}>
-              <div className="glass card-glow group h-full rounded-2xl p-6 hover:-translate-y-1">
-                <div className="mb-4 inline-flex rounded-xl bg-gradient-to-br from-indigo-500/25 to-violet-500/25 p-3 text-indigo-300 transition group-hover:scale-110 group-hover:text-indigo-200">
-                  {f.icon}
-                </div>
-                <p className="font-semibold text-white">{f.t}</p>
-                <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">{f.d}</p>
+        <div className="mx-auto mt-8 grid max-w-3xl gap-4 sm:grid-cols-2">
+          {STATS.map((s, i) => (
+            <Reveal key={s.v} delay={i * 80}>
+              <div className="glass stat-glow rounded-2xl px-6 py-6">
+                <p className="text-3xl font-bold text-white">{s.k}</p>
+                <p className="mt-1 text-xs tracking-wider text-zinc-500">{s.v}</p>
               </div>
             </Reveal>
           ))}
         </div>
+        <Reveal>
+          <div className="mt-6 text-center">
+            <Link href="/docs" className="btn-ghost">Explore docs <ArrowRight size={16} /></Link>
+          </div>
+        </Reveal>
       </section>
 
       {/* CODE */}
@@ -116,7 +125,7 @@ export default function Home() {
               <ul className="mt-5 space-y-2.5 text-sm text-zinc-300">
                 {['No credit card for Free tier', 'VIP gating with clear 403 errors', 'Referral bonuses stack every month'].map((t) => (
                   <li key={t} className="flex items-center gap-2">
-                    <BadgeCheck size={16} className="text-emerald-400" /> {t}
+                    <BadgeCheck size={16} className="text-white" /> {t}
                   </li>
                 ))}
               </ul>
@@ -131,22 +140,43 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FEATURES */}
+      <section className="mx-auto max-w-6xl px-4 py-14">
+        <Reveal>
+          <h2 className="text-center text-2xl font-bold text-white sm:text-3xl">Why Choose Dexter API?</h2>
+          <p className="mt-2 text-center text-zinc-400">A single REST API with predictable JSON and quota headers.</p>
+        </Reveal>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {FEATURES.map((f, i) => (
+            <Reveal key={f.t} delay={(i % 3) * 90}>
+              <div className="glass card-glow group h-full rounded-2xl p-6 hover:-translate-y-1">
+                <div className="mb-4 inline-flex rounded-xl bg-white/5 p-3 text-zinc-200 transition group-hover:scale-110 group-hover:text-white">
+                  {f.icon}
+                </div>
+                <p className="font-semibold text-white">{f.t}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">{f.d}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
       {/* PLANS */}
       <section className="mx-auto max-w-6xl px-4 py-14">
         <Reveal>
-          <h2 className="text-center text-2xl font-bold text-white sm:text-3xl">Simple <span className="animate-gradient bg-gradient-to-r from-indigo-300 via-violet-300 to-cyan-200 bg-clip-text text-transparent">pricing</span></h2>
-          <p className="mt-2 text-center text-zinc-400">Manual bank transfer. Human approval. Zero dark patterns.</p>
+          <h2 className="text-center text-2xl font-bold text-white sm:text-3xl">Pricing Plans</h2>
+          <p className="mt-2 text-center text-zinc-400">Choose a plan that fits your needs. No hidden fees.</p>
         </Reveal>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {PLANS.map((p, i) => (
             <Reveal key={p.n} delay={i * 80}>
-              <div className={`h-full rounded-2xl p-6 ${p.hot ? 'border border-indigo-400/50 bg-indigo-500/10 shadow-[0_0_36px_rgba(99,102,241,0.25)]' : 'glass'}`}>
-                {p.hot && <span className="mb-2 inline-block rounded-full bg-indigo-500 px-2.5 py-0.5 text-[11px] font-semibold text-white">POPULAR</span>}
+              <div className={`h-full rounded-2xl p-6 ${p.hot ? 'border border-white/40 bg-white/[0.06]' : 'glass'}`}>
+                {p.hot && <span className="mb-2 inline-block rounded-full bg-white px-2.5 py-0.5 text-[11px] font-semibold text-black">RECOMMENDED</span>}
                 <p className="font-semibold text-white">{p.n}</p>
                 <p className="mt-1 text-2xl font-bold text-white">{p.p}</p>
-                <p className="text-sm text-indigo-300">{p.c}</p>
+                <p className="text-sm text-zinc-300">{p.c}</p>
                 <ul className="mt-4 space-y-1.5 text-sm text-zinc-300">
-                  {p.f.map((f) => <li key={f} className="flex items-center gap-2"><BadgeCheck size={14} className="text-indigo-400" /> {f}</li>)}
+                  {p.f.map((f) => <li key={f} className="flex items-center gap-2"><BadgeCheck size={14} className="text-white" /> {f}</li>)}
                 </ul>
               </div>
             </Reveal>
@@ -159,16 +189,43 @@ export default function Home() {
         </Reveal>
       </section>
 
+      {/* FAQ */}
+      <section className="mx-auto max-w-3xl px-4 py-14">
+        <Reveal>
+          <h2 className="text-center text-2xl font-bold text-white sm:text-3xl">Frequently Asked Questions</h2>
+          <p className="mt-2 text-center text-zinc-400">Find answers to common questions about our service.</p>
+        </Reveal>
+        <div className="mt-8 space-y-2.5">
+          {FAQS.map((f, i) => {
+            const open = faq === i;
+            return (
+              <Reveal key={f.q} delay={i * 60}>
+                <div className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.02]">
+                  <button
+                    onClick={() => setFaq(open ? null : i)}
+                    className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left font-medium text-white"
+                  >
+                    {f.q}
+                    <ChevronDown size={17} className={`shrink-0 text-zinc-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+                  </button>
+                  {open && <p className="px-5 pb-4 text-sm leading-relaxed text-zinc-400">{f.a}</p>}
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
+      </section>
+
       {/* REFERRAL */}
       <section className="mx-auto max-w-6xl px-4 pb-16">
         <Reveal>
           <div className="glass flex flex-col items-center gap-5 rounded-3xl px-6 py-10 text-center">
             <AvatarGroup avatars={[{ name: 'Kasun' }, { name: 'Nimal' }, { name: 'Amal' }, { name: 'Sunil' }, { name: 'Kamal' }, { name: 'Ruwan' }]} max={5} size={44} />
             <div>
-              <h2 className="flex items-center justify-center gap-2 text-2xl font-bold text-white"><Users size={24} className="text-indigo-300" /> Invite, earn, repeat</h2>
+              <h2 className="flex items-center justify-center gap-2 text-2xl font-bold text-white"><Users size={24} className="text-white" /> Invite, earn, repeat</h2>
               <p className="mt-2 text-zinc-400">Every friend who joins gives you bonus calls. Hit the milestone and Plus is on us.</p>
             </div>
-            <Link href="/register" className="btn-primary btn-shine">Start referring <ArrowRight size={16} /></Link>
+            <Link href="/register" className="btn-primary">Start referring <ArrowRight size={16} /></Link>
             <p className="flex items-center gap-2 text-xs text-zinc-500"><Wrench size={14} /> Movies · Adult · Tools · Fun · Stalker · Anime — 131 endpoints and counting</p>
           </div>
         </Reveal>

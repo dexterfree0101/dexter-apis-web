@@ -10,8 +10,8 @@ export default function Footer() {
     <footer className="border-t border-white/10 bg-black/30">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 md:grid-cols-4">
         <div>
-          <p className="text-lg font-bold text-white">DEXTER <span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">APIS</span></p>
-          <p className="mt-2 text-sm text-zinc-400">40+ production APIs — AI, movies, downloaders, LK news, tools, fun and more. Free tier forever.</p>
+          <p className="text-lg font-bold text-white">DEXTER APIS</p>
+          <p className="mt-2 text-sm text-zinc-400">131+ production APIs — AI, movies, downloaders, LK news, tools, fun and more. Free tier forever.</p>
         </div>
         <div>
           <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-zinc-500">Platform</p>
@@ -27,7 +27,7 @@ export default function Footer() {
           <ul className="space-y-2 text-sm text-zinc-300">
             {CONTACTS.whatsapp.map((n) => (
               <li key={n}>
-                <a href={`https://wa.me/${n}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 hover:text-white">
+                <a href={`https://wa.me/${n}`} target={`_blank`} rel="noreferrer" className="inline-flex items-center gap-1.5 hover:text-white">
                   <MessageCircle size={14} className="text-emerald-400" /> +{n}
                 </a>
               </li>
