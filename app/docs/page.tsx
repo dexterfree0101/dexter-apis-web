@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import {
   Search, ChevronDown, ChevronRight, Play, KeyRound, Crown, Link2,
   SlidersHorizontal, List, CheckCircle2, XCircle, AlertTriangle, Clock3,
-  LayoutGrid, ArrowRight, Terminal, Copy,
+  LayoutGrid, ArrowRight, Terminal, Copy, Upload,
 } from 'lucide-react';
 import { api, callApiEndpoint, store, API_BASE } from '@/lib/api';
 import CodeBlock from '@/components/CodeBlock';
@@ -194,6 +194,20 @@ function DocsInner() {
     }
   };
 
+  const uploadCurl = `curl -X POST "${API_BASE}/api/upload/media?expires=60" \\
+  -H "Content-Type: application/json" \\
+  -H "x-api-key: ${key || 'YOUR_API_KEY'}" \\
+  -d '{"imageUrl": "https://example.com/photo.jpg"}'`;
+
+  const copyText = async (text: string, msg: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast(msg, 'success');
+    } catch {
+      toast('Copy failed', 'error');
+    }
+  };
+
   const pickCat = (name: string) => {
     setCat(name);
     setQuery('');
@@ -293,6 +307,21 @@ function DocsInner() {
               );
             })}
             {!cats.length && !err && <p className="py-10 text-center text-sm text-zinc-500">Loading registry…</p>}
+            {!!cats.length && (
+              <div className="rounded-xl border border-emerald-400/20 bg-emerald-500/[0.04] p-5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Upload size={15} className="text-emerald-300" />
+                  <span className="text-[15px] font-semibold text-white">File Upload</span>
+                  <span className="rounded-md bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-bold text-emerald-300">POST</span>
+                  <code className="rounded-md bg-white/5 px-1.5 py-0.5 font-mono text-[11px] text-zinc-300">/api/upload/media</code>
+                </div>
+                <p className="mt-1 text-sm text-zinc-500">Upload an image (base64 or URL) and get a temporary CDN link. Max 15 MB · <code className="font-mono text-[12px] text-zinc-400">?expires=</code> minutes (default 60).</p>
+                <CodeBlock code={uploadCurl} title="Example" />
+                <button onClick={() => copyText(uploadCurl, 'Upload cURL copied')} className="mt-3 flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-zinc-300 transition hover:border-emerald-400/40 hover:text-white">
+                  <Copy size={12} /> Copy cURL
+                </button>
+              </div>
+            )}
           </div>
         )}
 
