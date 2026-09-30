@@ -10,16 +10,16 @@ import Reveal from '@/components/Reveal';
 import { API_BASE } from '@/lib/api';
 
 const STATS = [
-  { k: '43+', v: 'Live endpoints' },
+  { k: '131+', v: 'Live endpoints' },
   { k: '100', v: 'Free calls / month' },
   { k: '11', v: 'News sources' },
-  { k: '24/7', v: 'Pro support' },
+  { k: '14', v: 'API categories' },
 ];
 
 const FEATURES = [
-  { icon: <Bot size={22} />, t: 'AI Endpoints', d: 'Claude, Gemini and MathGPT with generous timeouts and clean JSON output.' },
+  { icon: <Bot size={22} />, t: 'AI Endpoints', d: '17 AI writers, chat and helpers with clean JSON output.' },
   { icon: <Newspaper size={22} />, t: 'Sri Lankan News', d: 'Derana, Lankadeepa, Hiru, Gossip Lanka, Siyatha, cricket and more.' },
-  { icon: <CloudDownload size={22} />, t: 'Downloaders', d: 'TikTok, Facebook, MediaFire and Mega download APIs for your apps.' },
+  { icon: <CloudDownload size={22} />, t: 'Downloaders', d: 'YouTube, TikTok, Facebook, MediaFire, Mega and direct APK downloads.' },
   { icon: <Clapperboard size={22} />, t: 'Movies & Subs', d: 'CineSubz search, latest releases and Sinhala subtitle links.' },
   { icon: <Flame size={22} />, t: 'Adult Search', d: 'VIP-gated video search and stream extraction for adult platforms.' },
   { icon: <Gauge size={22} />, t: 'Quota Dashboard', d: 'Real-time usage rings, plan status and per-call quota tracking.' },
@@ -48,7 +48,7 @@ export default function Home() {
         <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-20 text-center sm:pt-28">
           <Reveal>
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-500/10 px-4 py-1.5 text-xs font-medium text-indigo-200">
-              <Sparkles size={14} /> v3.3 — Google login + movies + adult search
+              <Sparkles size={14} /> v3.7 — 131 endpoints, apps, AI tools & new docs
             </div>
           </Reveal>
           <Reveal delay={80}>
@@ -169,7 +169,7 @@ export default function Home() {
               <p className="mt-2 text-zinc-400">Every friend who joins gives you bonus calls. Hit the milestone and Plus is on us.</p>
             </div>
             <Link href="/register" className="btn-primary btn-shine">Start referring <ArrowRight size={16} /></Link>
-            <p className="flex items-center gap-2 text-xs text-zinc-500"><Wrench size={14} /> Movies · Adult · Tools · Fun · Stalker · Anime — 43 endpoints and counting</p>
+            <p className="flex items-center gap-2 text-xs text-zinc-500"><Wrench size={14} /> Movies · Adult · Tools · Fun · Stalker · Anime — 131 endpoints and counting</p>
           </div>
         </Reveal>
       </section>
